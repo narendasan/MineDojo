@@ -3,7 +3,7 @@ from copy import deepcopy
 from typing import Union, Optional, List, Dict, Tuple, Literal, Any
 
 import cv2
-import gym
+import gymnasium as gym
 import numpy as np
 from lxml import etree
 
@@ -419,7 +419,7 @@ class MineDojoSim(gym.Env):
         raw_obs = self._bridge_env.reset(episode_id, [xml])[0]
         obs, info = self._process_raw_obs(raw_obs)
         self._prev_obs, self._prev_info = deepcopy(obs), deepcopy(info)
-        return obs
+        return obs, info
 
     def step(self, action: dict):
         """Run one timestep of the environment’s dynamics. Accepts an action and returns next_obs, reward, done, info.

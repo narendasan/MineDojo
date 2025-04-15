@@ -5,7 +5,7 @@ import string
 import random
 from collections import OrderedDict
 
-import gym.spaces
+import gymnasium as gym
 import numpy as np
 
 
@@ -517,7 +517,7 @@ class Text(MineRLSpace):
     MAX_STR_LEN = 100
 
     def __init__(self, shape):
-        super().__init__(shape, np.unicode_)
+        super().__init__(shape, np.str_)
 
     def sample(self, bs=None):
         total_strings = np.prod(self.shape)

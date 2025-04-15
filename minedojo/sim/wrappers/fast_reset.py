@@ -10,9 +10,10 @@ Side effects:
     3. Statistics/achievements will not be reset. This wrapper will maintain a property `info_prev_reset`. If your
         tasks use stat/achievements to evaluation, please retrieve this property and calculate differences
 """
+
 from __future__ import annotations
 
-import gym
+import gymnasium as gym
 
 from ..sim import MineDojoSim
 from ...sim.mc_meta.mc import MAX_FOOD, MAX_LIFE
@@ -47,17 +48,17 @@ class FastResetWrapper(gym.Wrapper):
                 f"/spreadplayers ~ ~ 0 {random_teleport_range} false @p"
             )
         self._reset_cmds.extend(
-            [f"/time set {start_time or 0}", f'/weather {start_weather or "normal"}']
+            [f"/time set {start_time or 0}", f"/weather {start_weather or 'normal'}"]
         )
         if initial_inventory is not None:
             for inventory_item in initial_inventory:
                 slot, item_dict = parse_inventory_item(inventory_item)
                 self._reset_cmds.append(
-                    f'/replaceitem entity @p {map_slot_number_to_cmd_slot(slot)} minecraft:{item_dict["type"]} {item_dict["quantity"]} {item_dict["metadata"]}'
+                    f"/replaceitem entity @p {map_slot_number_to_cmd_slot(slot)} minecraft:{item_dict['type']} {item_dict['quantity']} {item_dict['metadata']}"
                 )
         if start_position is not None:
             self._reset_cmds.append(
-                f'/tp {start_position["x"]} {start_position["y"]} {start_position["z"]} {start_position["yaw"]} {start_position["pitch"]}'
+                f"/tp {start_position['x']} {start_position['y']} {start_position['z']} {start_position['yaw']} {start_position['pitch']}"
             )
         if clear_ground:
             self._reset_cmds.append("/kill @e[type=item]")
@@ -73,7 +74,7 @@ class FastResetWrapper(gym.Wrapper):
             for cmd in self._reset_cmds:
                 obs, _, _, info = self.env.execute_cmd(cmd)
             self._info_prev_reset = self.env.prev_info
-            return obs
+            return obs, ""
 
     def execute_cmd(self, *args, **kwargs):
         return self.env.execute_cmd(*args, **kwargs)

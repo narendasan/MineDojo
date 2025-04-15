@@ -1,7 +1,7 @@
 import math
 from typing import Union, Sequence
 
-import gym
+import gymnasium as gym
 import numpy as np
 
 from ...sim import MineDojoSim
@@ -26,9 +26,9 @@ class NNActionSpaceWrapper(gym.Wrapper):
             and "place" in env.action_space.keys()
             and "swap_slot" not in env.action_space.keys()
         ), "please use this wrapper with event_level_control = True"
-        assert (
-            "inventory" in env.observation_space.keys()
-        ), f"missing inventory from obs space"
+        assert "inventory" in env.observation_space.keys(), (
+            f"missing inventory from obs space"
+        )
         super().__init__(env=env)
 
         n_pitch_bins = math.ceil(360 / discretized_camera_interval) + 1
@@ -258,7 +258,7 @@ class NNActionSpaceWrapper(gym.Wrapper):
     def reset(self, **kwargs):
         obs = self.env.reset(**kwargs)
         self._inventory_names = obs["inventory"]["name"].copy()
-        return obs
+        return obs, None
 
     def step(self, action: Sequence[int]):
         malmo_action, destroy_item = self.action(action)
@@ -271,11 +271,13 @@ class NNActionSpaceWrapper(gym.Wrapper):
                 action=malmo_action,
             )
         else:
-            obs, reward, done, info = self.env.step(malmo_action)
+            obs, reward, done, _, info = self.env.step(malmo_action)
 
         # handle malmo's lags
         if action[5] in {2, 4, 5, 6, 7}:
             for _ in range(2):
-                obs, reward, done, info = self.env.step(self.env.action_space.no_op())
+                obs, reward, done, _, info = self.env.step(
+                    self.env.action_space.no_op()
+                )
         self._inventory_names = obs["inventory"]["name"].copy()
-        return obs, reward, done, info
+        return obs, reward, done, "", info

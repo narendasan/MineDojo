@@ -3,7 +3,7 @@ from __future__ import annotations
 from copy import deepcopy
 from typing import List, Dict, Any, Union, Tuple, Optional
 
-import gym
+import gymnasium as gym
 import numpy as np
 
 from ...sim import MineDojoSim
@@ -78,13 +78,13 @@ class MetaTaskBase(gym.Wrapper):
     def is_successful(self):
         return self._is_successful
 
-    def reset(self):
+    def reset(self, **kwargs):
         """Resets the environment to an initial state and returns an initial observation.
 
         Return:
             Agent’s initial observation.
         """
-        obs = self.env.reset()
+        obs, _ = self.env.reset()
         info = self.env.prev_info
         obs, info = self._after_sim_reset_hook(obs, info)
         self._ini_info_dict = (
@@ -123,7 +123,7 @@ class MetaTaskBase(gym.Wrapper):
         )
         done = self.env.is_terminated or self._is_successful
         self._pre_info_dict = deepcopy(info)
-        return obs, reward, done, info
+        return obs, reward, done, "", info
 
     def get_prompt(self, **kwargs) -> str:
         """Get the prompt of the task"""
@@ -249,15 +249,17 @@ class ExtraSpawnMetaTaskBase(MetaTaskBase):
         """
         self._extra_spawn_rate = None
         if extra_spawn_rate is not None:
-            assert all(
-                [1.0 >= rate >= 0.0 for rate in extra_spawn_rate.values()]
-            ), "extra spawn rate must <= 1.0 and >= 0.0"
+            assert all([1.0 >= rate >= 0.0 for rate in extra_spawn_rate.values()]), (
+                "extra spawn rate must <= 1.0 and >= 0.0"
+            )
             assert all(
                 [
                     name in self.by_summon or name in self.by_setblock
                     for name in extra_spawn_rate.keys()
                 ]
-            ), f"{extra_spawn_rate.keys()} should belong to either {self.by_summony} or {self.by_setblock}"
+            ), (
+                f"{extra_spawn_rate.keys()} should belong to either {self.by_summony} or {self.by_setblock}"
+            )
             if extra_spawn_condition is None:
                 extra_spawn_condition = {
                     k: always_satisfy_condition for k in extra_spawn_rate.keys()
