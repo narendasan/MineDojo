@@ -1,0 +1,3 @@
+[submodule "minedojo/sim/Malmo/Minecraft/third_party/MixinGradle-dcfaf61"]
+	path = minedojo/sim/Malmo/Minecraft/third_party/MixinGradle-dcfaf61
+	url = git@github.com:verityw/MixinGradle-dcfaf61
